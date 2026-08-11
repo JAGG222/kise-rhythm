@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>박 지키기 게임 — 학생 친화형</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFF8EA;
+  --paper-2:#FFFFFF;
+  --cream:#FFFDF7;
+  --ink:#14213D;
+  --ink-soft:#557085;
+  --rule:#B8D8F5;
+  --live:#FF7A59;
+  --inner:#4F8DD8;
+  --hit:#2FA66A;
+  --miss:#F0A23A;
+  --sky:#D9F0FF;
+  --sky-2:#EDF8FF;
+  --mint:#E5F8E9;
+  --green:#2FA66A;
+  --yellow:#FFE28A;
+  --pink:#FFD6E7;
+  --shadow:0 1.4vh 4vh rgba(20,33,61,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  background:
+    radial-gradient(circle at 8% 12%, rgba(255,226,138,.55) 0 7vh, transparent 7.2vh),
+    radial-gradient(circle at 94% 10%, rgba(255,214,231,.48) 0 8vh, transparent 8.3vh),
+    radial-gradient(circle at 8% 92%, rgba(217,240,255,.62) 0 10vh, transparent 10.3vh),
+    linear-gradient(135deg,#FFF9E8 0%,#F4FBFF 52%,#FFF2F7 100%);
+  color:var(--ink);
+  font-family:"Noto Sans KR",system-ui,sans-serif;
+  display:flex;flex-direction:column;
+  padding:2.1vh 2.2vw;gap:1.6vh;
+}
+body::before{
+  content:"★  ♪  ●  ♫  ★  ●";
+  position:fixed;left:2vw;right:2vw;top:9.5vh;
+  display:flex;justify-content:space-between;
+  color:rgba(79,141,216,.35);
+  font-size:2.7vh;font-weight:700;
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:"";
+  position:fixed;inset:auto 2vw 1.4vh auto;width:15vh;height:15vh;
+  border-radius:45% 55% 50% 50%;
+  background:rgba(255,214,231,.45);
+  filter:blur(.2vh);
+  pointer-events:none;z-index:0;
+}
+
+.top{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;gap:2vw;flex:0 0 auto;
+  background:rgba(255,255,255,.82);
+  border:0.35vh solid rgba(79,141,216,.28);
+  border-radius:2.4vh;
+  padding:1.4vh 1.8vw;
+  box-shadow:var(--shadow);
+}
+.top h1{
+  font-family:"Black Han Sans",sans-serif;font-weight:400;font-size:4.4vh;line-height:1;
+  letter-spacing:.02em;white-space:nowrap;
+  text-shadow:0 .25vh 0 rgba(255,255,255,.9);
+}
+.top h1::before{
+  content:"🎵";
+  display:inline-block;margin-right:.6vw;font-size:4vh;transform:rotate(-8deg);
+}
+.top h1 em{
+  font-style:normal;color:var(--live);
+  background:linear-gradient(180deg,#FFE6D8,#FFD1C1);
+  border:0.25vh solid rgba(255,122,89,.28);
+  border-radius:1.4vh;
+  padding:.15vh .8vw .3vh;
+}
+.top .meta{
+  font-family:"Noto Sans KR",system-ui,sans-serif;
+  font-size:1.45vh;line-height:1.35;color:var(--ink-soft);text-align:right;
+}
+.top .topcontact{letter-spacing:.02em;text-transform:none;white-space:nowrap;color:var(--ink-soft)}
+.top .topcontact a{color:var(--ink);text-decoration:none;border-bottom:1px solid rgba(20,33,61,.22)}
+.top .topcontact a:hover{border-bottom-color:var(--live);color:var(--live)}
+
+.stage{
+  position:relative;z-index:1;
+  flex:1 1 auto;
+  background:
+    linear-gradient(var(--paper-2),var(--paper-2)) padding-box,
+    linear-gradient(135deg,#8CCBFF,#A7E8B4,#FFD77A,#FFB5D0) border-box;
+  border:0.55vh solid transparent;
+  border-radius:3vh;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:var(--shadow);
+}
+.stage::before{
+  content:"";
+  position:absolute;inset:1.2vh;border-radius:2.3vh;
+  border:.28vh dashed rgba(79,141,216,.28);
+  pointer-events:none;
+}
+.stage::after{
+  content:"🙂";
+  position:absolute;left:2.1vh;bottom:21.6vh;
+  width:6.2vh;height:6.2vh;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--yellow);border:.35vh solid rgba(240,162,58,.35);
+  font-size:3.4vh;box-shadow:0 .6vh 1.5vh rgba(20,33,61,.12);
+  pointer-events:none;
+}
+.phase{
+  position:absolute;top:2.6vh;left:2.6vh;
+  max-width:52vw;
+  font-size:2.15vh;font-weight:700;color:var(--ink);
+  background:var(--sky-2);
+  border:.25vh solid rgba(79,141,216,.25);
+  border-radius:999px;
+  padding:.75vh 1.2vw;
+  box-shadow:0 .4vh 1.3vh rgba(20,33,61,.07);
+}
+.phase::before{content:"✨ ";color:var(--live)}
+.bpmtag{
+  position:absolute;top:2.6vh;right:2.6vh;
+  font-family:"IBM Plex Mono",monospace;font-size:1.9vh;letter-spacing:.06em;color:var(--ink);
+  background:var(--mint);
+  border:.25vh solid rgba(47,166,106,.25);
+  border-radius:999px;
+  padding:.75vh 1.1vw;
+}
+.count{
+  flex:1 1 auto;display:flex;align-items:center;justify-content:center;
+  font-family:"Black Han Sans",sans-serif;
+  font-size:31vh;line-height:.8;color:var(--ink);
+  transition:color .1s ease, transform .12s ease;
+  text-shadow:0 .7vh 0 rgba(184,216,245,.55), 0 1.4vh 3vh rgba(20,33,61,.08);
+}
+.count.silent{color:var(--inner)}
+.count.ding{color:var(--live);transform:scale(1.03)}
+.pulse{
+  position:absolute;bottom:2.8vh;left:2.8vh;
+  width:3.1vh;height:3.1vh;border-radius:50%;
+  background:#C7D8E4;border:.35vh solid white;
+  box-shadow:0 .4vh 1.2vh rgba(20,33,61,.14);
+  transition:background .07s ease,transform .07s ease;
+}
+.pulse.on{background:var(--live);transform:scale(1.6)}
+.pulse.quiet{background:var(--inner);transform:scale(1)}
+.pulse.off{opacity:.22;transform:scale(.78);background:#C7D8E4}
+.pulse.hidden{opacity:0;transform:scale(.78);background:#C7D8E4}
+
+.staff{
+  position:relative;
+  flex:0 0 auto;height:20vh;width:100%;
+  background:linear-gradient(180deg,transparent,rgba(217,240,255,.28));
+  border-top:.2vh solid rgba(79,141,216,.12);
+}
+.staff svg{display:block;width:100%;height:100%}
+.line{stroke:#9FC3E6;stroke-width:1.4}
+
+.bar{
+  position:relative;z-index:2;
+  flex:0 0 auto;display:flex;align-items:center;gap:1.15vw;
+  font-family:"Noto Sans KR",system-ui,sans-serif;font-size:1.7vh;color:var(--ink-soft);
+  background:rgba(255,255,255,.76);
+  border:.25vh solid rgba(20,33,61,.08);
+  border-radius:2vh;
+  padding:1vh 1vw;
+  box-shadow:0 .5vh 2vh rgba(20,33,61,.08);
+}
+.bar .grp{display:flex;align-items:center;gap:.5vw}
+.bar label{
+  font-size:1.48vh;font-weight:800;color:var(--ink);
+  background:#FFF0C2;border-radius:999px;padding:.55vh .7vw;
+}
+select{
+  appearance:none;background:#fff;color:var(--ink);
+  border:.25vh solid rgba(79,141,216,.28);border-radius:1.2vh;
+  padding:.85vh 3.4vh .85vh 1.05vh;font-family:"Noto Sans KR";font-size:1.8vh;font-weight:700;
+  box-shadow:0 .25vh 1vh rgba(20,33,61,.05);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23557085' stroke-width='1.8'/></svg>");
+  background-repeat:no-repeat;background-position:right 1.2vh center;
+}
+select:focus-visible{outline:.4vh solid var(--live);outline-offset:.2vh}
+.bar .spacer{flex:1}
+.keys{letter-spacing:0;font-size:1.45vh;color:var(--ink-soft);white-space:nowrap}
+.keys b{
+  font-weight:800;color:var(--ink);background:var(--sky);
+  border:.18vh solid rgba(79,141,216,.2);
+  border-radius:.7vh;padding:.28vh .65vh;margin:0 .15vh;
+}
+
+.contact{letter-spacing:.06em;white-space:nowrap;font-size:1.55vh;color:var(--ink-soft)}
+.contact a{color:var(--ink);text-decoration:none;border-bottom:1px solid rgba(16,21,26,.2)}
+.contact a:hover{border-bottom-color:var(--live);color:var(--live)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.result{
+  position:absolute;top:8.2vh;left:50%;transform:translateX(-50%);
+  min-width:34vw;max-width:58vw;text-align:center;
+  background:rgba(255,255,255,.92);
+  border:.32vh solid rgba(255,122,89,.22);
+  border-radius:2vh;padding:1.4vh 1.9vh;
+  box-shadow:0 1vh 3vh rgba(20,33,61,.13);
+  opacity:0;pointer-events:none;transition:opacity .16s ease, transform .16s ease;
+}
+.result.show{opacity:1;transform:translateX(-50%) translateY(.2vh)}
+.result .main{
+  font-family:"Black Han Sans",sans-serif;font-size:4.4vh;line-height:1.05;
+  color:var(--live);font-weight:400;
+}
+.result .main::before{content:"🎯 ";font-family:system-ui}
+.result .sub{
+  margin-top:.7vh;font-size:1.8vh;color:var(--ink-soft);font-weight:700;
+}
+.history{
+  position:absolute;right:2.6vh;bottom:23.2vh;width:min(36vw,440px);
+  background:rgba(255,255,255,.9);border:.28vh solid rgba(47,166,106,.18);
+  border-radius:2vh;padding:1.3vh 1.4vh;
+  box-shadow:0 .8vh 2.6vh rgba(20,33,61,.1);
+  font-size:1.55vh;color:var(--ink-soft);
+}
+.history h2{
+  font-family:"Black Han Sans",sans-serif;font-weight:400;
+  color:var(--ink);font-size:2.45vh;line-height:1;margin-bottom:.8vh;
+}
+.history h2::before{content:"📌 ";font-family:system-ui}
+.history table{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono","Noto Sans KR",monospace}
+.history th,.history td{padding:.45vh .35vw;border-top:1px solid rgba(20,33,61,.08);text-align:left;white-space:nowrap}
+.history th{font-family:"Noto Sans KR";font-size:1.35vh;color:var(--ink-soft);font-weight:800}
+.history .empty{font-family:"Noto Sans KR";font-size:1.6vh;color:var(--ink-soft);padding:.4vh 0}
+.history .good{color:var(--hit);font-weight:800}
+.history .late,.history .early{color:var(--miss);font-weight:800}
+button{
+  background:#fff;color:var(--ink);
+  border:.25vh solid rgba(20,33,61,.16);border-radius:1.2vh;
+  padding:.85vh 1.2vh;font-family:"Noto Sans KR";font-size:1.7vh;font-weight:800;
+  cursor:pointer;box-shadow:0 .25vh 1vh rgba(20,33,61,.05);
+}
+button::before{content:"🧹 ";font-family:system-ui}
+button:focus-visible{outline:.4vh solid var(--live);outline-offset:.2vh}
+button:active{transform:translateY(.1vh)}
+
+@media (max-width: 900px){
+  .top{align-items:flex-start;flex-direction:column;gap:.8vh}
+  .top .meta{text-align:left}
+  .keys{display:none}
+  .history{width:42vw}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>박 지키기 <em>땡!</em></h1>
+  <p class="meta">2026 국립특수교육원 특수교사 음악 직무연수 · 박재근 · <span class="topcontact">CONTACT <a href="/cdn-cgi/l/email-protection#ceb9a1bca3bdf6fdf7f98ea5a1bcabafe0a5bc"><span class="__cf_email__" data-cfemail="8afde5f8e7f9b2b9b3bdcae1e5f8efeba4e1f8">[email&#160;protected]</span></a></span></p>
+</div>
+
+<div class="stage">
+  <p class="phase" id="phase">스페이스바를 누르면 시작합니다</p>
+  <p class="bpmtag" id="bpmtag">100 BPM · 10박</p>
+  <div class="count" id="count">–</div>
+  <div class="pulse" id="pulse"></div>
+  <div class="result" id="result" aria-live="polite">
+    <div class="main" id="resultMain"></div>
+    <div class="sub" id="resultSub"></div>
+  </div>
+  <div class="history" id="history" aria-live="polite">
+    <h2>로컬 기록</h2>
+    <div id="historyBody" class="empty">아직 기록이 없습니다.</div>
+  </div>
+  <div class="staff">
+    <svg id="score" viewBox="0 0 1000 200" preserveAspectRatio="none" role="img" aria-label="박이 지날 때마다 오선 위에 음표가 찍힙니다">
+      <g id="lines"></g>
+      <g id="notes"></g>
+    </svg>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="grp"><label for="bpm">빠르기</label>
+    <select id="bpm">
+      <option value="40">40 · 아주 느리게</option><option value="50">50</option>
+      <option value="60">60 · 심장박동</option><option value="70">70</option>
+      <option value="80">80 · 걷기</option><option value="90">90</option>
+      <option value="100" selected>100</option><option value="110">110</option>
+      <option value="120">120 · 행진</option><option value="130">130</option>
+      <option value="140">140</option><option value="150">150</option>
+      <option value="160">160 · 빠르게</option><option value="180">180 · 아주 빠르게</option>
+    </select></div>
+  <div class="grp"><label for="lead">들려주는 박</label>
+    <select id="lead"><option value="4" selected>4박</option><option value="5">5박</option></select></div>
+  <div class="grp"><label for="target">목표 박</label>
+    <select id="target"><option value="10" selected>10박</option><option value="16">16박</option><option value="20">20박</option></select></div>
+  <div class="grp"><label for="vis">음표</label>
+    <select id="vis"><option value="lead" selected>들려줄 때만</option><option value="all">끝까지</option><option value="none">없음</option></select></div>
+  <div class="grp"><label for="pulseMode">불빛</label>
+    <select id="pulseMode"><option value="lead" selected>들려줄 때만</option><option value="all">끝까지</option><option value="off">끄기</option></select></div>
+  <div class="spacer"></div>
+  <button id="clear">기록 지우기</button>
+  <p class="keys"><b>SPACE</b>/<b>클릭</b> 준비·시작·체크 &nbsp; <b>R</b> 다시하기 &nbsp; <b>↑↓</b> 빠르기 &nbsp; <b>F</b> 전체화면</p>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var AC = null, timer = null, running = false, arming = false, done = false;
+  var beat = 0, spb = 0, lead = 4, target = 10;
+  var startPerf = 0, expectedPerf = 0, inputLockedUntil = 0;
+  var ARM_LOCK_MS = 350;
+  var TOP = 60, GAP = 20;
+  var STORE_KEY = 'beat_game_records_v2';
+
+  (function(){
+    var s = '';
+    for (var i = 0; i < 5; i++){
+      var y = TOP + i * GAP;
+      s += '<line class="line" x1="30" y1="' + y + '" x2="970" y2="' + y + '"/>';
+    }
+    $('lines').innerHTML = s;
+  })();
+
+  function tag(){
+    $('bpmtag').textContent = $('bpm').value + ' BPM · ' + $('target').value + '박';
+  }
+
+  function setPulseIdle(){
+    var p = $('pulse');
+    var mode = $('pulseMode') ? $('pulseMode').value : 'all';
+    p.className = mode === 'off' ? 'pulse hidden' : 'pulse off';
+  }
+
+  function flashPulse(audible){
+    var mode = $('pulseMode') ? $('pulseMode').value : 'all';
+    var p = $('pulse');
+    if (mode === 'off' || (mode === 'lead' && !audible)){
+      p.className = 'pulse hidden';
+      return;
+    }
+    p.className = 'pulse ' + (audible ? 'on' : 'quiet');
+    setTimeout(setPulseIdle, 80);
+  }
+
+  function setResult(main, sub, show){
+    $('resultMain').textContent = main || '';
+    $('resultSub').textContent = sub || '';
+    $('result').className = 'result' + (show ? ' show' : '');
+  }
+
+  function noteX(i){
+    var l = 60, r = 940;
+    return target === 1 ? l : l + (r - l) * (i - 1) / (target - 1);
+  }
+
+  function drawNote(i, filled){
+    var mode = $('vis').value;
+    if (mode === 'none') return;
+    if (mode === 'lead' && i > lead) return;
+    if ($('notes').querySelector('[data-beat="' + i + '"]')) return;
+
+    var ns = 'http://www.w3.org/2000/svg';
+    var x = noteX(i);
+    var y = TOP + GAP * (2 + (i % 2 === 0 ? 0.5 : -0.5));
+    var color = filled ? 'var(--ink)' : 'var(--inner)';
+    var g = document.createElementNS(ns, 'g');
+    g.setAttribute('data-beat', i);
+
+    var e = document.createElementNS(ns, 'ellipse');
+    e.setAttribute('cx', x); e.setAttribute('cy', y);
+    e.setAttribute('rx', 10); e.setAttribute('ry', 7.5);
+    e.setAttribute('transform', 'rotate(-18 ' + x + ' ' + y + ')');
+    if (filled){ e.setAttribute('fill', color); }
+    else { e.setAttribute('fill','none'); e.setAttribute('stroke', color); e.setAttribute('stroke-width', 2.5); }
+
+    var st = document.createElementNS(ns, 'line');
+    st.setAttribute('x1', x + 9); st.setAttribute('y1', y - 3);
+    st.setAttribute('x2', x + 9); st.setAttribute('y2', y - 48);
+    st.setAttribute('stroke', color); st.setAttribute('stroke-width', 2.5);
+
+    g.appendChild(e); g.appendChild(st);
+    $('notes').appendChild(g);
+  }
+
+  function drawTargetMark(){
+    if ($('notes').querySelector('[data-target="1"]')) return;
+    var ns = 'http://www.w3.org/2000/svg';
+    var x = noteX(target);
+    var g = document.createElementNS(ns, 'g');
+    g.setAttribute('data-target', '1');
+
+    var line = document.createElementNS(ns, 'line');
+    line.setAttribute('x1', x); line.setAttribute('y1', TOP - 12);
+    line.setAttribute('x2', x); line.setAttribute('y2', TOP + 4 * GAP + 12);
+    line.setAttribute('stroke', 'var(--live)');
+    line.setAttribute('stroke-width', 3);
+    line.setAttribute('stroke-dasharray', '8 8');
+
+    var t = document.createElementNS(ns, 'text');
+    t.setAttribute('x', x);
+    t.setAttribute('y', TOP - 24);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('fill','var(--live)');
+    t.setAttribute('font-family','Black Han Sans');
+    t.setAttribute('font-size','30');
+    t.textContent = '목표';
+
+    g.appendChild(line); g.appendChild(t);
+    $('notes').appendChild(g);
+  }
+
+  function clickSound(hi){
+    if (!AC || AC.state !== 'running') return;
+    var t = AC.currentTime + 0.02;
+    var o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine';
+    o.frequency.value = hi ? 1320 : 880;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.5, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t + 0.12);
+  }
+
+  function ready(cb){
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    var go = function(){
+      var b = AC.createBuffer(1, 1, AC.sampleRate);
+      var s = AC.createBufferSource();
+      s.buffer = b; s.connect(AC.destination); s.start(0);
+      cb();
+    };
+    if (AC.state === 'suspended'){
+      var p = AC.resume();
+      if (p && p.then) p.then(go); else setTimeout(go, 60);
+    } else { go(); }
+  }
+
+  function halt(){
+    running = false;
+    arming = false;
+    if (timer){ clearInterval(timer); timer = null; }
+  }
+
+  function resetTrial(hideResult){
+    halt();
+    done = false;
+    inputLockedUntil = 0;
+    beat = 0;
+    lead = parseInt($('lead').value, 10);
+    target = parseInt($('target').value, 10);
+    $('notes').innerHTML = '';
+    $('count').textContent = '–';
+    $('count').className = 'count';
+    $('phase').textContent = 'SPACE / 화면 탭·클릭으로 준비해요';
+    setPulseIdle();
+    if (hideResult !== false) setResult('', '', false);
+    tag();
+  }
+
+  function reset(){
+    resetTrial(true);
+  }
+
+  function step(){
+    beat++;
+    var audible = beat <= lead;
+    var mode = $('vis').value;
+    var c = $('count');
+
+    if (audible) clickSound(beat === 1);
+    c.textContent = (mode === 'all' || audible) ? beat : '?';
+    c.className = 'count' + (audible ? '' : ' silent');
+    $('phase').textContent = audible ? '듣고 몸으로 따라가요' : '속으로 세다가 목표 박에서 눌러요';
+
+    flashPulse(audible);
+
+    drawNote(beat, audible);
+
+    if (beat > target + 4){
+      miss();
+    }
+  }
+
+  function signedSeconds(ms){
+    var s = Math.abs(ms) / 1000;
+    var sign = ms >= 0 ? '+' : '−';
+    return sign + s.toFixed(2) + '초';
+  }
+
+  function judge(ms){
+    var a = Math.abs(ms);
+    if (a <= 80) return {text:'거의 정확!', cls:'good'};
+    if (a <= 250) return {text:'좋아요', cls:'good'};
+    return {text: ms < 0 ? '조금 빨랐어요' : '조금 늦었어요', cls: ms < 0 ? 'early' : 'late'};
+  }
+
+  function loadRecords(){
+    try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }
+    catch(e){ return []; }
+  }
+
+  function saveRecord(r){
+    var arr = loadRecords();
+    arr.unshift(r);
+    arr = arr.slice(0, 20);
+    localStorage.setItem(STORE_KEY, JSON.stringify(arr));
+    renderHistory();
+  }
+
+  function renderHistory(){
+    var arr = loadRecords();
+    if (!arr.length){
+      $('historyBody').className = 'empty';
+      $('historyBody').textContent = '아직 기록이 없습니다.';
+      return;
+    }
+    $('historyBody').className = '';
+    var html = '<table><thead><tr><th>시간</th><th>BPM</th><th>목표</th><th>오차</th></tr></thead><tbody>';
+    arr.slice(0, 6).forEach(function(r){
+      html += '<tr><td>' + r.time + '</td><td>' + r.bpm + '</td><td>' + r.target + '박</td><td class="' + r.cls + '">' + r.error + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    $('historyBody').innerHTML = html;
+  }
+
+  function recordResponse(ms){
+    var j = judge(ms);
+    var time = new Date();
+    saveRecord({
+      time: String(time.getHours()).padStart(2,'0') + ':' + String(time.getMinutes()).padStart(2,'0'),
+      bpm: $('bpm').value,
+      target: $('target').value,
+      lead: $('lead').value,
+      error: signedSeconds(ms),
+      cls: j.cls
+    });
+  }
+
+  function respond(){
+    if (!running || done) return;
+    if (beat <= lead){
+      $('phase').textContent = '들려주는 박이 끝난 뒤에 눌러보세요';
+      return;
+    }
+
+    var now = performance.now();
+    var diff = now - expectedPerf;
+    var j = judge(diff);
+
+    done = true;
+    halt();
+    drawTargetMark();
+    clickSound(true);
+
+    $('count').textContent = signedSeconds(diff);
+    $('count').className = 'count ding';
+    $('phase').textContent = '체크 완료';
+
+    var dir = Math.abs(diff) <= 80 ? '목표 박과 거의 맞았습니다.' : (diff < 0 ? '목표 박보다 빨랐습니다.' : '목표 박보다 늦었습니다.');
+    setResult(j.text, signedSeconds(diff) + ' · ' + dir, true);
+    recordResponse(diff);
+  }
+
+  function miss(){
+    if (!running || done) return;
+    done = true;
+    halt();
+    drawTargetMark();
+    $('count').textContent = '지나감';
+    $('count').className = 'count silent';
+    $('phase').textContent = '다시 도전해 봐요';
+    setResult('목표 박을 지나쳤어요', 'R 또는 SPACE/클릭으로 다시 준비할 수 있습니다.', true);
+  }
+
+  function prepareStart(){
+    resetTrial(false);
+    $('phase').textContent = '준비 완료 · 한 번 더 누르면 시작해요';
+    $('count').textContent = '준비';
+    $('count').className = 'count silent';
+    arming = true;
+    inputLockedUntil = performance.now() + ARM_LOCK_MS;
+    ready(function(){
+      if (!arming) return;
+      $('phase').textContent = '준비 완료 · 한 번 더 누르면 시작해요';
+    });
+  }
+
+  function beginRun(){
+    if (!arming) return;
+    spb = 60 / parseInt($('bpm').value, 10);
+    startPerf = performance.now();
+    expectedPerf = startPerf + (target - 1) * spb * 1000;
+    running = true;
+    arming = false;
+    done = false;
+    setResult('', '', false);
+    step();
+    timer = setInterval(step, spb * 1000);
+  }
+
+  function handleAction(e){
+    if (e && e.preventDefault) e.preventDefault();
+    var now = performance.now();
+    if (arming){
+      if (now < inputLockedUntil) return;
+      beginRun();
+      return;
+    }
+    if (running){
+      if (now < inputLockedUntil) return;
+      if (beat <= lead) return;
+      respond();
+    }
+    else prepareStart();
+  }
+
+  function nudge(dir){
+    var s = $('bpm'), i = s.selectedIndex + dir;
+    if (i < 0 || i >= s.options.length) return;
+    s.selectedIndex = i;
+    reset();
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
+    var k = e.key.toLowerCase();
+    if (e.code === 'Space'){
+      if (e.repeat) return;
+      handleAction(e);
+    }
+    else if (k === 'r'){ e.preventDefault(); reset(); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); nudge(1); }
+    else if (e.key === 'ArrowDown'){ e.preventDefault(); nudge(-1); }
+    else if (k === 'f'){
+      e.preventDefault();
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    }
+  });
+
+  document.querySelector('.stage').addEventListener('pointerdown', function(e){
+    handleAction(e);
+  });
+
+  ['bpm','lead','target','vis','pulseMode'].forEach(function(id){
+    $(id).addEventListener('change', reset);
+  });
+
+  $('clear').addEventListener('click', function(e){
+    e.preventDefault();
+    localStorage.removeItem(STORE_KEY);
+    renderHistory();
+    setResult('기록을 지웠습니다', '이 브라우저의 로컬 기록만 삭제됩니다.', true);
+  });
+
+  reset();
+  renderHistory();
+})();
+</script>
+</body>
+</html>
