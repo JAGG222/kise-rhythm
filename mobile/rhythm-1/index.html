@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>동물농장 — 긴 소리 · 짧은 소리 | 리듬 표현 및 활동의 실제</title>
+<meta name="description" content="동물 소리를 직접 내보고 긴 소리와 짧은 소리 우리로 나누어 봅니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#D6EAF2;
+  --field:#E8F1D8;
+  --cream:#FFF8E9;
+  --hay:#F4E2B0;
+  --barn:#C0432F;
+  --barn-dark:#8E2F20;
+  --wood:#A4744C;
+  --wood-dark:#6E4A2E;
+  --ink:#3B2A1E;
+  --ink-soft:#7C6752;
+  --live:#C0432F;
+  --inner:#3C7E96;
+  --hit:#3E7A3A;
+  --miss:#B9822A;
+  --pad:clamp(14px,3.5vw,26px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  background:linear-gradient(180deg,var(--sky) 0%,#E4F0E4 45%,var(--field) 100%) fixed;
+  color:var(--ink);
+  font-family:"Noto Sans KR",system-ui,sans-serif;
+  font-size:16px;line-height:1.6;
+  padding:var(--pad);padding-bottom:calc(var(--pad) + env(safe-area-inset-bottom));
+  display:flex;justify-content:center;overscroll-behavior-y:none;
+}
+.wrap{width:100%;max-width:880px;display:flex;flex-direction:column;gap:clamp(12px,2.4vw,18px)}
+
+/* ── 헛간 머리말 ─────────────────────────── */
+.barn{
+  background:var(--cream);border:3px solid var(--wood-dark);border-radius:16px;
+  overflow:hidden;box-shadow:0 4px 0 rgba(110,74,46,.28);
+}
+.roof{
+  height:clamp(26px,7vw,46px);background:var(--barn);
+  clip-path:polygon(0 100%,16% 0,84% 0,100% 100%);
+  border-bottom:0;position:relative;
+}
+.roof::after{
+  content:"";position:absolute;inset:auto 0 0 0;height:5px;background:rgba(0,0,0,.12);
+}
+.barn-body{padding:clamp(12px,3vw,20px) clamp(14px,4vw,24px) clamp(14px,3.4vw,20px)}
+.eyebrow{
+  font-family:"Gaegu",cursive;font-size:14px;letter-spacing:.04em;color:var(--ink-soft);
+}
+h1{
+  font-family:"Jua",sans-serif;font-weight:400;
+  font-size:clamp(26px,7vw,42px);line-height:1.15;margin-top:2px;
+}
+h1 .lo{color:var(--barn)}
+h1 .sh{color:var(--inner)}
+.lede{font-size:14px;color:var(--ink-soft);margin-top:6px}
+
+/* ── 마당(카드 풀) ───────────────────────── */
+.yard{
+  background:var(--field);border:3px solid var(--wood);border-radius:16px;
+  padding:10px;box-shadow:0 3px 0 rgba(110,74,46,.2);
+}
+.cap{
+  font-family:"Gaegu",cursive;font-size:15px;color:var(--ink-soft);
+  margin:0 4px 8px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;
+}
+.cap b{font-family:"Jua",sans-serif;font-weight:400;color:var(--ink)}
+#pool{
+  display:flex;flex-wrap:wrap;gap:9px;min-height:104px;
+  background:var(--cream);border:2px dashed rgba(164,116,76,.55);border-radius:12px;padding:9px;
+}
+
+/* ── 동물 카드 ───────────────────────────── */
+.card{
+  width:86px;background:var(--cream);border:2px solid var(--wood);border-radius:14px;
+  padding:.55rem .2rem .45rem;display:flex;flex-direction:column;align-items:center;gap:1px;
+  cursor:grab;user-select:none;touch-action:none;text-align:center;
+  box-shadow:0 3px 0 rgba(110,74,46,.25);
+  transition:transform .1s ease,border-color .12s ease,box-shadow .12s ease;
+}
+.card:hover{transform:translateY(-2px) rotate(-1.5deg);border-color:var(--wood-dark)}
+.card .em{font-size:31px;line-height:1.15}
+.card .nm{font-family:"Jua",sans-serif;font-weight:400;font-size:14px;letter-spacing:.01em}
+.card .cry{font-family:"Gaegu",cursive;font-size:13px;font-weight:700;color:var(--barn);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.card.playing{border-color:var(--barn);transform:scale(.94) rotate(2deg);box-shadow:0 0 0 4px rgba(192,67,47,.16)}
+.card.ghost{position:fixed;z-index:99;pointer-events:none;opacity:.92;transform:rotate(-4deg);box-shadow:0 14px 26px rgba(59,42,30,.35)}
+.card .mark{font-family:"Gaegu",cursive;font-weight:700;font-size:13px;margin-top:2px}
+.card.ok{border-color:var(--hit);border-width:3px;background:#F4FAEF}
+.card.no{border-color:var(--miss);border-width:3px;background:#FDF6E3}
+.card.both{border-color:var(--inner);border-width:3px;background:#EFF7FA}
+
+/* ── 두 우리 ─────────────────────────────── */
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bin{
+  background:var(--cream);border:3px solid var(--wood);border-radius:16px;
+  padding:10px 10px 22px;min-height:176px;display:flex;flex-direction:column;gap:6px;
+  box-shadow:0 3px 0 rgba(110,74,46,.22);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='14' viewBox='0 0 44 14'%3E%3Cpath d='M3 14C5 8 7 6 9 14M13 14C15 5 18 7 19 14M24 14C26 9 29 6 30 14M35 14C37 5 40 7 41 14' stroke='%237FA85A' stroke-width='1.7' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:repeat-x;background-position:bottom;
+  transition:background-color .1s ease,border-color .1s ease,box-shadow .1s ease;
+}
+.bin.over{border-color:var(--barn);box-shadow:0 3px 0 rgba(110,74,46,.22),inset 0 0 0 4px rgba(192,67,47,.14)}
+.bin h2{
+  font-family:"Jua",sans-serif;font-weight:400;font-size:19px;text-align:center;line-height:1.2;
+  background:var(--wood);color:var(--cream);border-radius:9px;padding:4px 8px;
+  position:relative;box-shadow:0 2px 0 var(--wood-dark);
+}
+.bin h2::before,.bin h2::after{
+  content:"";position:absolute;top:7px;width:5px;height:5px;border-radius:50%;
+  background:rgba(255,248,233,.65);
+}
+.bin h2::before{left:8px} .bin h2::after{right:8px}
+.bin .sig{display:block;height:15px;margin:6px auto 2px}
+.bin .items{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;align-content:flex-start;flex:1}
+.bin .hint{font-family:"Gaegu",cursive;font-size:14px;color:var(--ink-soft);text-align:center}
+
+/* ── 조작부 ─────────────────────────────── */
+button{
+  border:2px solid var(--wood);background:var(--cream);color:var(--ink);
+  border-radius:12px;padding:12px 0;font-family:"Jua",sans-serif;font-size:16px;
+  cursor:pointer;box-shadow:0 3px 0 rgba(110,74,46,.35);
+  transition:transform .06s ease,box-shadow .06s ease,background .12s ease;
+}
+button:hover{background:#fff}
+button:active{transform:translateY(3px);box-shadow:0 0 0 rgba(110,74,46,.35)}
+button:focus-visible{outline:3px solid var(--barn);outline-offset:3px}
+.btns{display:grid;grid-template-columns:2fr 1fr 1fr;gap:9px}
+#check{background:var(--barn);color:#FFF6E5;border-color:var(--barn-dark);box-shadow:0 3px 0 var(--barn-dark);font-size:19px}
+#check:hover{background:#CE4E38}
+
+.toggles{
+  display:flex;gap:10px;flex-wrap:wrap;font-family:"Gaegu",cursive;font-size:16px;
+}
+.toggles label{
+  display:flex;align-items:center;gap:7px;cursor:pointer;
+  background:var(--hay);border:2px solid var(--wood);border-radius:999px;padding:3px 14px 4px;
+  color:var(--ink);
+}
+.toggles input{accent-color:var(--barn);width:15px;height:15px}
+
+#msg{
+  background:var(--cream);border:3px solid var(--wood-dark);border-radius:14px;
+  padding:.9rem 1rem;min-height:64px;font-size:15px;color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  box-shadow:0 3px 0 rgba(110,74,46,.22);
+}
+#msg b{font-family:"Jua",sans-serif;font-weight:400;font-size:18px;color:var(--ink)}
+
+.fence{display:block;width:100%;height:26px;opacity:.85}
+footer{
+  font-family:"Gaegu",cursive;font-size:14px;color:var(--ink-soft);
+  text-align:center;line-height:1.6;margin-top:-6px;
+}
+footer a{color:var(--wood-dark);text-decoration:none;border-bottom:1px dotted var(--wood)}
+footer a:hover{color:var(--barn);border-bottom-color:var(--barn)}
+
+@media (max-width:420px){ .card{width:76px} .card .em{font-size:27px} .card .nm{font-size:13px} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* mobile-first polish by ChatGPT */
+
+@supports (min-height: 100dvh){ body{min-height:100dvh} }
+html,body{overflow-x:hidden}
+body{touch-action:manipulation}
+button,.card{min-height:44px}
+@media (max-width: 720px){
+  body{padding:12px;padding-bottom:calc(16px + env(safe-area-inset-bottom));font-size:15px}
+  .wrap{gap:12px;max-width:640px}
+  .roof{height:30px}.barn{border-radius:18px}.barn-body{padding:14px 16px 16px}
+  h1{font-size:clamp(30px,10vw,42px)}.lede{font-size:13px;line-height:1.45}
+  .yard{padding:9px;border-radius:16px}.cap{font-size:14px;line-height:1.3}
+  #pool{gap:8px;justify-content:center;min-height:88px;padding:8px}
+  .card{width:78px;border-radius:14px;padding:8px 3px 7px}
+  .card .em{font-size:28px}.card .nm{font-size:14px}.card .cry{font-size:12px}
+  .bins{grid-template-columns:1fr;gap:10px}
+  .bin{min-height:142px;border-radius:16px;padding:9px 9px 20px}
+  .bin h2{font-size:18px}.bin .items{gap:8px}.bin .hint{font-size:13px}
+  .btns{grid-template-columns:1fr;gap:8px}
+  button{width:100%;padding:12px 10px;border-radius:14px;font-size:16px}
+  #check{font-size:18px;position:sticky;bottom:10px;z-index:20}
+  .toggles{font-size:16px;gap:8px}.toggles label{flex:1 1 100%;justify-content:center;padding:6px 10px}
+  #msg{font-size:15px;line-height:1.45;min-height:56px;padding:12px}
+  footer{font-size:14px}.fence{height:20px}
+}
+@media (max-width: 390px){
+  .card{width:72px}.card .em{font-size:26px}.card .nm{font-size:13px}.card .cry{font-size:11px}
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="barn">
+  <div class="roof"></div>
+  <div class="barn-body">
+    <p class="eyebrow">2026 국립특수교육원 특수교사 음악 직무연수</p>
+    <h1>동물농장의<br><span class="lo">긴 소리</span> · <span class="sh">짧은 소리</span></h1>
+    <p class="lede">카드를 탭해 소리를 내어 보고, 손가락으로 끌어 두 우리에 나누어 놓으세요.</p>
+  </div>
+</header>
+
+<section class="yard">
+  <p class="cap"><span>마당 — 카드를 누르면 다 같이 소리 내기</span><span id="left"></span></p>
+  <div id="pool"></div>
+</section>
+
+<div class="bins">
+  <div class="bin" data-bin="long">
+    <h2>긴 소리 우리</h2>
+    <svg class="sig" viewBox="0 0 120 14" aria-hidden="true"><path d="M6 7h108" stroke="#C0432F" stroke-width="7" stroke-linecap="round"/></svg>
+    <div class="items"></div>
+    <p class="hint">길게 끄는 소리</p>
+  </div>
+  <div class="bin" data-bin="short">
+    <h2>짧은 소리 우리</h2>
+    <svg class="sig" viewBox="0 0 120 14" aria-hidden="true"><circle cx="26" cy="7" r="5.5" fill="#3C7E96"/><circle cx="60" cy="7" r="5.5" fill="#3C7E96"/><circle cx="94" cy="7" r="5.5" fill="#3C7E96"/></svg>
+    <div class="items"></div>
+    <p class="hint">툭 끊어지는 소리</p>
+  </div>
+</div>
+
+<div class="btns">
+  <button id="check">확인하기</button>
+  <button id="reset">되돌리기</button>
+  <button id="shuffle">섞기</button>
+</div>
+
+<div class="toggles">
+  <label><input type="checkbox" id="cry" checked> 소리 글자 보이기</label>
+  <label><input type="checkbox" id="hard"> 헷갈리는 동물 넣기</label>
+</div>
+
+<div id="msg">동물 소리를 흉내 내면서 나누어 보세요. 정답이 하나가 아닌 동물도 있습니다.</div>
+
+<svg class="fence" viewBox="0 0 400 26" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 12h400M0 19h400" stroke="#A4744C" stroke-width="3.4"/>
+  <g fill="#6E4A2E">
+    <path d="M18 6l4-5 4 5v20h-8z"/><path d="M78 6l4-5 4 5v20h-8z"/><path d="M138 6l4-5 4 5v20h-8z"/>
+    <path d="M198 6l4-5 4 5v20h-8z"/><path d="M258 6l4-5 4 5v20h-8z"/><path d="M318 6l4-5 4 5v20h-8z"/>
+    <path d="M378 6l4-5 4 5v20h-8z"/>
+  </g>
+</svg>
+
+<footer>박재근 · 리듬 표현 및 활동의 실제<br>
+worms8397&#64;korea.kr<br>
+소리는 선생님과 학생이 직접 냅니다</footer>
+</div>
+
+<script>
+(function(){
+var $ = function(id){ return document.getElementById(id); };
+
+// ans: 'long' | 'short' | 'both' — 'both'는 어느 쪽에 넣어도 맞음
+var DATA = [
+  { id:'cow',    em:'\uD83D\uDC2E', nm:'소',      cry:'음메~~~',   ans:'long', hard:false },
+  { id:'wolf',   em:'\uD83D\uDC3A', nm:'늑대',    cry:'아우우우~', ans:'long', hard:false },
+  { id:'cicada', em:'\uD83E\uDD97', nm:'매미',    cry:'맴~~~~',    ans:'long', hard:false },
+  { id:'sheep',  em:'\uD83D\uDC11', nm:'양',      cry:'메에에~',   ans:'long', hard:false },
+  { id:'bee',    em:'\uD83D\uDC1D', nm:'벌',      cry:'윙~~~~~',   ans:'long', hard:false },
+  { id:'dog',    em:'\uD83D\uDC36', nm:'개',      cry:'멍!',       ans:'short', hard:false },
+  { id:'chick',  em:'\uD83D\uDC24', nm:'병아리',  cry:'삐약',      ans:'short', hard:false },
+  { id:'duck',   em:'\uD83E\uDD86', nm:'오리',    cry:'꽥',        ans:'short',  hard:false },
+  { id:'frog',   em:'\uD83D\uDC38', nm:'개구리',  cry:'개굴',      ans:'short',  hard:false },
+  { id:'spar',   em:'\uD83D\uDC26', nm:'참새',    cry:'짹',        ans:'short', hard:false },
+  { id:'hen',    em:'\uD83D\uDC14', nm:'닭',      cry:'꼬끼오~ / 꼬꼬꼬', ans:'both', hard:true },
+  { id:'cat',    em:'\uD83D\uDC31', nm:'고양이',  cry:'야옹 / 야오오옹~', ans:'both', hard:true },
+  { id:'horse',  em:'\uD83D\uDC34', nm:'말',      cry:'히히힝',     ans:'both', hard:true },
+  { id:'dove',   em:'\uD83D\uDD4A\uFE0F', nm:'비둘기', cry:'구구구~', ans:'both', hard:true }
+];
+
+var place = {};   // id -> 'long' | 'short' | null
+var order = DATA.map(function(d){ return d.id; });
+var drag=null, ghost=null, moved=false, downXY=null, checked=false;
+
+function byId(id){ for(var i=0;i<DATA.length;i++) if(DATA[i].id===id) return DATA[i]; return null; }
+function active(){ return DATA.filter(function(d){ return $('hard').checked || !d.hard; }); }
+
+function makeCard(d, isGhost){
+  var el = document.createElement('div');
+  el.className = 'card' + (isGhost ? ' ghost' : '');
+  el.dataset.id = d.id;
+  el.innerHTML = '<span class="em">'+d.em+'</span><span class="nm">'+d.nm+'</span>'
+    + ($('cry').checked ? '<span class="cry">'+d.cry+'</span>' : '');
+  if(checked && !isGhost && place[d.id]){
+    if(d.ans==='both'){ el.classList.add('both'); el.innerHTML += '<span class="mark" style="color:var(--inner)">둘 다 가능</span>'; }
+    else if(place[d.id]===d.ans){ el.classList.add('ok'); el.innerHTML += '<span class="mark" style="color:var(--hit)">맞음</span>'; }
+    else { el.classList.add('no'); el.innerHTML += '<span class="mark" style="color:var(--miss)">다시</span>'; }
+  }
+  return el;
+}
+
+function render(){
+  var pool = $('pool'); pool.innerHTML = '';
+  var binL = document.querySelector('[data-bin="long"] .items');
+  var binS = document.querySelector('[data-bin="short"] .items');
+  binL.innerHTML = ''; binS.innerHTML = '';
+  var left = 0;
+
+  order.forEach(function(id){
+    var d = byId(id);
+    if(!$('hard').checked && d.hard) return;
+    var el = makeCard(d, false);
+    el.addEventListener('pointerdown', function(e){ startDrag(e, d.id); });
+    var p = place[id];
+    if(p==='long') binL.appendChild(el);
+    else if(p==='short') binS.appendChild(el);
+    else { pool.appendChild(el); left++; }
+  });
+
+  $('left').innerHTML = '남은 카드 <b>'+left+'</b>';
+}
+
+function say(t, c){ $('msg').style.color = c || 'var(--ink-soft)'; $('msg').innerHTML = t; }
+
+function startDrag(e, id){
+  e.preventDefault();
+  moved = false; downXY = { x:e.clientX, y:e.clientY };
+  drag = id;
+  var d = byId(id);
+  ghost = makeCard(d, true);
+  ghost.style.width = '86px';
+  document.body.appendChild(ghost);
+  move(e);
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', drop);
+}
+function move(e){
+  if(!ghost) return;
+  if(downXY && (Math.abs(e.clientX-downXY.x)>5 || Math.abs(e.clientY-downXY.y)>5)) moved = true;
+  ghost.style.left = (e.clientX-43)+'px';
+  ghost.style.top  = (e.clientY-46)+'px';
+  document.querySelectorAll('.bin').forEach(function(b){
+    var r = b.getBoundingClientRect();
+    b.classList.toggle('over', e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom);
+  });
+}
+function drop(e){
+  window.removeEventListener('pointermove', move);
+  window.removeEventListener('pointerup', drop);
+  if(ghost){ ghost.remove(); ghost = null; }
+  document.querySelectorAll('.bin').forEach(function(b){ b.classList.remove('over'); });
+  if(!drag) return;
+  var id = drag; drag = null;
+  var d = byId(id);
+
+  // 누르기만 하면 소리 내라는 안내
+  if(!moved){
+    var el = document.querySelector('.card[data-id="'+id+'"]');
+    if(el){ el.classList.add('playing'); setTimeout(function(){ el.classList.remove('playing'); }, 400); }
+    say('<b>'+d.nm+'</b> &nbsp;'+d.cry+' &nbsp;— 다 같이 소리 내어 봅시다.');
+    return;
+  }
+
+  var bin = null;
+  document.querySelectorAll('.bin').forEach(function(b){
+    var r = b.getBoundingClientRect();
+    if(e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom) bin = b.dataset.bin;
+  });
+  var pool = $('pool').getBoundingClientRect();
+  var inPool = e.clientX>=pool.left && e.clientX<=pool.right && e.clientY>=pool.top && e.clientY<=pool.bottom;
+
+  if(bin){ place[id] = bin; checked = false; render(); say('<b>'+d.nm+'</b> → '+(bin==='long'?'긴 소리 우리':'짧은 소리 우리')); }
+  else if(inPool){ place[id] = null; checked = false; render(); say('<b>'+d.nm+'</b>를 마당으로 되돌렸습니다.'); }
+  else { render(); }
+}
+
+$('check').onclick = function(){
+  var list = active();
+  var done = list.filter(function(d){ return place[d.id]; });
+  if(done.length === 0){ say('아직 나눈 카드가 없습니다.', 'var(--miss)'); return; }
+  checked = true; render();
+
+  var ok = 0, both = 0, no = 0;
+  done.forEach(function(d){
+    if(d.ans==='both') both++;
+    else if(place[d.id]===d.ans) ok++;
+    else no++;
+  });
+
+  var txt = '<b>'+ok+' / '+(ok+no)+'</b> 맞았습니다';
+  if(both > 0) txt += ' &nbsp;·&nbsp; 파란 테두리 '+both+'장은 <b>둘 다 맞습니다</b>';
+  if(no > 0) txt += '<br><span style="font-size:14px">틀린 카드를 다시 옮겨 보세요.</span>';
+  else if(both > 0) txt += '<br><span style="font-size:14px">같은 동물도 어떻게 우느냐에 따라 길이가 달라집니다.</span>';
+  say(txt, no>0 ? 'var(--miss)' : 'var(--hit)');
+};
+
+$('reset').onclick = function(){
+  place = {}; checked = false; render();
+  say('모두 마당으로 돌려보냈습니다. 다시 나누어 보세요.');
+};
+$('shuffle').onclick = function(){
+  for(var i=order.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t = order[i]; order[i] = order[j]; order[j] = t;
+  }
+  render(); say('카드를 섞었습니다.');
+};
+$('hard').onchange = function(){
+  checked = false;
+  if(!this.checked){ DATA.forEach(function(d){ if(d.hard) place[d.id] = null; }); }
+  render();
+  say(this.checked
+    ? '닭 · 고양이 · 말 · 비둘기를 넣었습니다. 이 넷은 정답이 하나가 아닙니다.'
+    : '헷갈리는 동물을 뺐습니다.');
+};
+$('cry').onchange = render;
+
+render();
+})();
+</script>
+</body>
+</html>
