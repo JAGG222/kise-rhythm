@@ -351,6 +351,40 @@ body{min-height:100vh;touch-action:manipulation}
   .count{font-size:clamp(86px,32vw,140px);min-height:150px}
 }
 
+
+
+/* 모바일 터치 보정: 스크롤 중 오작동 방지와 작은 화면 정리 */
+@media (max-width: 640px){
+  html,body{height:auto;min-height:100%;overflow:auto;}
+  body{padding:12px;gap:10px;}
+  .top{border-radius:20px;padding:14px;}
+  .top h1{font-size:34px;white-space:normal;line-height:1.12;}
+  .top .meta{font-size:12px;}
+  .stage{min-height:520px;border-radius:24px;}
+  .stage::after{display:none;}
+  .phase{position:static;margin:14px 14px 0;max-width:none;font-size:15px;display:inline-block;}
+  .bpmtag{position:static;margin:8px 14px 0;display:inline-block;font-size:14px;}
+  .count{font-size:96px;min-height:190px;}
+  .result{position:static;transform:none;min-width:0;max-width:none;margin:0 14px 10px;padding:12px;}
+  .result.show{transform:none;}
+  .result .main{font-size:30px;}
+  .result .sub{font-size:14px;}
+  .history{position:static;width:auto;margin:0 14px 12px;font-size:13px;}
+  .history h2{font-size:20px;}
+  .staff{height:110px;}
+  .pulse{left:18px;bottom:14px;}
+  .bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px;padding:10px;}
+  .bar .grp{display:flex;flex-direction:column;align-items:stretch;gap:4px;}
+  .bar label{font-size:12px;text-align:center;padding:5px 7px;}
+  select,button{font-size:15px;min-height:44px;}
+  .bar .spacer,.keys{display:none;}
+}
+@media (max-width: 380px){
+  .top h1{font-size:30px;}
+  .count{font-size:82px;}
+  .bar{grid-template-columns:1fr;}
+}
+
 </style>
 </head>
 <body>
@@ -742,9 +776,25 @@ body{min-height:100vh;touch-action:manipulation}
     }
   });
 
-  document.querySelector('.stage').addEventListener('pointerdown', function(e){
-    handleAction(e);
+  // 모바일에서는 스크롤하려고 손댄 것과 실제 탭을 구분합니다.
+  // pointerdown 즉시 시작하면 화면을 내리려다 게임이 시작되므로,
+  // 짧게 톡 누른 경우에만 준비/시작/체크가 되도록 합니다.
+  var stageTap = null;
+  var stageEl = document.querySelector('.stage');
+  stageEl.addEventListener('pointerdown', function(e){
+    stageTap = { x:e.clientX, y:e.clientY, t:performance.now(), id:e.pointerId };
+  }, {passive:true});
+  stageEl.addEventListener('pointerup', function(e){
+    if (!stageTap || stageTap.id !== e.pointerId) return;
+    var dx = Math.abs(e.clientX - stageTap.x);
+    var dy = Math.abs(e.clientY - stageTap.y);
+    var dt = performance.now() - stageTap.t;
+    stageTap = null;
+    if (dx <= 12 && dy <= 12 && dt <= 500) {
+      handleAction(e);
+    }
   });
+  stageEl.addEventListener('pointercancel', function(){ stageTap = null; }, {passive:true});
 
   ['bpm','lead','target','vis','pulseMode'].forEach(function(id){
     $(id).addEventListener('change', reset);
